@@ -93,11 +93,21 @@ object List { // `List` companion object. Contains functions for creating and wo
     println(productL(l))
 
     println(reverse(l))
-    println(map(l)(_ * 2))
+    println(map2(l)(_ * 2))
 
     val lll = List(List(1, 2, 3), List(3, 4, 5), List(1))
     println(concat(lll))
     println(appendR(l, l))
+    println(add1(l))
+
+    val d = List(1.0, 2.0, 3.0, 4.0)
+    println(doubleToString(d))
+
+    println(filter(l)(_ % 2 == 0))
+
+    val l2 = List(10, 20, 30)
+    println(zip(l, l2))
+    println(zipWith(l, l2)(_ + _))
   }
 
   def dropWhile[A](l: List[A])(f: A => Boolean): List[A] = {
@@ -131,4 +141,33 @@ object List { // `List` companion object. Contains functions for creating and wo
     foldRight(l, r)(Cons(_, _))
 
   def concat[A](l: List[List[A]]): List[A] = foldRight(l, Nil: List[A])(append)
+
+  def add1(l: List[Int]): List[Int] =
+    foldRight(l, Nil: List[Int])((h, t) => Cons(h + 1, t))
+
+  def doubleToString(l: List[Double]): List[String] =
+    foldRight(l, Nil: List[String])((h, t) => Cons(h.toString, t))
+
+  def map2[A, B](as: List[A])(f: A => B): List[B] =
+    foldRight(as, Nil: List[B])((h, t) => Cons(f(h), t))
+
+  def filter[A](as: List[A])(f: A => Boolean): List[A] =
+    foldRight(as, Nil: List[A])((h, t) => if (f(h)) Cons(h, t) else t)
+
+  def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = concat(map(as)(f))
+
+  def filterViaFlatMap[A](as: List[A])(f: A => Boolean): List[A] =
+    flatMap(as)(e => if (f(e)) List(e) else Nil)
+
+  def zip(l: List[Int], r: List[Int]): List[Int] = (l, r) match {
+    case (Nil, _) | (_, Nil)          => Nil
+    case (Cons(h1, t1), Cons(h2, t2)) => Cons(h1 + h2, zip(t1, t2))
+  }
+
+  def zipWith[A](l: List[A], r: List[A])(f: (A, A) => A): List[A] =
+    (l, r) match {
+      case (Nil, _) | (_, Nil)          => Nil
+      case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1, h2), zipWith(t1, t2)(f))
+    }
+
 }
